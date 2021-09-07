@@ -3,5 +3,5 @@
 @import 'tailwindcss/utilities';
 
 .max-w-8xl {
-	max-width: 100rem;
+	max-width: 120rem;
 }

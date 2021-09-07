@@ -14,27 +14,33 @@
                 <div class="bg-white overflow-hidden shadow-xl sm:rounded-lg mb-4">
                     <h1 class="text-xl p-2">Filters</h1>
                 </div>
-                <div class="grid grid-cols-4 gap-5">
-                    <div v-if="cards && cards.data.length > 0" class="grid grid-cols-3 gap-5 col-span-3">
-                        <div v-for="card in cards.data" class="mb-6">
+                <div class="grid grid-cols-7 gap-5">
+                    <div v-if="cards && cards.data.length > 0" class="grid grid-cols-4 gap-5 col-span-5">
+                        <div v-for="card in cards.data" class="mb-2">
                             <div class="mb-2">
-                                <img :src="card.image_uris.normal" />
+                                <img class="cursor-pointer" :src="card.image_uris.normal" @click="addCard(card)" />
                             </div>
-                            <div class="flex justify-center">
-                                <button class="flex-1 bg-blue-400 text-white rounded-md" @click="removeCard(card)">-</button>
-                                <div class="flex-1 text-center">[COUNT]</div>
-                                <button class="flex-1 bg-blue-400 text-white rounded-md"  @click="addCard(card)">+</button>
-                            </div> 
                         </div>
                     </div>
-                    <div class="bg-white overflow-y shadow-xl sm:rounded p-2 sticky top-0 self-start">
-                        <h1 class="text-xl">Deck</h1>
-                        <div v-for="card in deck" class="grid grid-cols-3 gap-2">
-                            <div class="col-span-2">
-                                ({{deckCardCount[card.arena_id].count}}) {{card.name}}
-                            </div>
-                            <div>
-                                {{card.mana_cost}}
+                    <div class="bg-white shadow-xl sm:rounded p-2 sticky top-2 self-start col-span-2">
+                        <h1 class="text-xl">Deck ({{deckTotalCards}}/60)</h1>
+                        <div class="deck-list-container overflow-y-auto">
+                            <div v-for="card in deck" class="card-list-item grid grid-cols-5 gap-2">
+                                <div class="col-span-3">
+                                    ({{deckCardCount[card.arena_id].count}}) {{card.name}}
+                                </div>
+                                <div class="flex justify-end">
+                                    <span v-for="mana in parseManaCost(card.mana_cost)" class="flex-1 mana-symbol ml-1">
+                                        <img :src="'/img/' + mana + '.svg'" alt="" />
+                                    </span>
+                                </div>
+                                <div class="deck-list-actions text-right">
+                                    <span class="draw-percentage">{{parseFloat((deckCardCount[card.arena_id].count/deckTotalCards) * 100).toFixed(1)}}%</span>
+                                    <div class="actions flex">
+                                        <button class="flex-1 bg-blue-400 text-white rounded-md mr-1" @click="removeCard(card)">-</button>
+                                        <button class="flex-1 bg-blue-400 text-white rounded-md"  @click="addCard(card)">+</button>
+                                    </div>
+                                </div>
                             </div>
                         </div>
                     </div>
@@ -64,9 +70,18 @@
             }
         },
 
+        computed: {
+            deckTotalCards() {
+                let count = 0;
+                Object.keys(this.deckCardCount).forEach(card => {
+                    count += this.deckCardCount[card].count;
+                })
+                return count;
+            }
+        },
+
         mounted() {
             this.getCards();
-            console.log(cardJson);
         },
 
         methods: {
@@ -85,12 +100,62 @@
                     this.deckCardCount[card.arena_id] = {};
                     this.deckCardCount[card.arena_id].count = 1;
                 } else {
-                    if (this.deckCardCount[card.arena_id].count < 4) this.deckCardCount[card.arena_id].count++;
+                    if (this.deckCardCount[card.arena_id].count < 4 || this.isBasicLand(card)) this.deckCardCount[card.arena_id].count++;
                 }
                 
                 this.deck = _.orderBy(this.deck, ['cmc'], 'asc');
+            },
+
+            removeCard(card) {
+                this.deckCardCount[card.arena_id].count--;
+                if (this.deckCardCount[card.arena_id].count === 0) {
+                     this.deckSet.delete(card.arena_id);
+                     this.deck = this.deck.filter(deckItem => deckItem.arena_id !== card.arena_id);
+                }
+            },
+
+            parseManaCost(cost) {
+                let manaList = cost.replaceAll('{','').replaceAll('}', '|').split('|');
+                manaList.pop();
+                return manaList;
+            },
+
+            isBasicLand(card) {
+                return card.type_line.search('Basic Land') !== -1;
             }
             
         }
     }
 </script>
+
+<style scoped>
+    .deck-list-container {
+        max-height: 95vh;
+    }
+
+    .mana-symbol {
+        max-width: 20px;
+    }
+
+    .card-list-item {
+        background-color: #f3f4f6;
+        padding: 8px;
+        border-radius: 6px;
+        margin-bottom: 8px;
+        border: 0px solid black;
+        border-top: 2px solid black;
+        border-bottom: 2px solid black;
+    }
+
+    .deck-list-actions .actions {
+        display: none;
+    }
+
+    .card-list-item:hover .actions {
+        display: flex;
+    }
+
+    .card-list-item:hover .draw-percentage {
+        display: none;
+    }
+</style>
