@@ -18,7 +18,8 @@
                     <div v-if="cards && cards.data.length > 0" class="grid grid-cols-4 gap-5 col-span-5">
                         <div v-for="card in cards.data" class="mb-2">
                             <div class="mb-2">
-                                <img class="cursor-pointer" :src="card.image_uris.normal" @click="addCard(card)" />
+                                <!-- <img class="cursor-pointer" :src="card.image_uris.normal" @click="addCard(card)" /> -->
+                                <card-display :card="card" :card-count="(deckCardCount[card.arena_id] && deckCardCount[card.arena_id].count) ? deckCardCount[card.arena_id].count : 0" @addCard="addCard" />
                             </div>
                         </div>
                     </div>
@@ -27,7 +28,7 @@
                         <div class="deck-list-container overflow-y-auto">
                             <div v-for="card in deck" class="card-list-item grid grid-cols-5 gap-2">
                                 <div class="col-span-3">
-                                    ({{deckCardCount[card.arena_id].count}}) {{card.name}}
+                                    <span class="count-badge" :class="'bg-rarity-' + card.rarity">{{deckCardCount[card.arena_id].count}}</span> {{card.name}}
                                 </div>
                                 <div class="flex justify-end">
                                     <span v-for="mana in parseManaCost(card.mana_cost)" class="flex-1 mana-symbol ml-1">
@@ -53,12 +54,14 @@
 <script>
     import AppLayout from '@/Layouts/AppLayout.vue'
     import Welcome from '@/Jetstream/Welcome.vue'
+    import CardDisplay from '../Components/CardDisplay.vue'
     import cardJson from '../scryfall_json/afr.json';
 
     export default {
         components: {
             AppLayout,
             Welcome,
+            CardDisplay
         },
 
         data() {
@@ -157,5 +160,10 @@
 
     .card-list-item:hover .draw-percentage {
         display: none;
+    }
+
+    .count-badge {
+        padding: 1px 8px;
+        border-radius: 4px;
     }
 </style>

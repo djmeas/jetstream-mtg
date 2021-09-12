@@ -5,3 +5,20 @@
 .max-w-8xl {
 	max-width: 120rem;
 }
+
+.bg-rarity-common {
+	background-color: #1c1d18;
+	color: white;
+}
+
+.bg-rarity-uncommon {
+	background-color: #99a8b6;
+}
+
+.bg-rarity-rare {
+	background-color: #e2c166;
+}
+
+.bg-rarity-mythic {
+	background-color: #e48939;
+}
