@@ -8,7 +8,7 @@
 
             </div>
         </div>
-        <img class="cursor-pointer" :src="card.image_uris.normal" @click="$emit('addCard', card)" />
+        <img class="cursor-pointer" :src="card.image_uris.normal" loading="lazy" @click="$emit('addCard', card)" />
     </div>
 </template>
 

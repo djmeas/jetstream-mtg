@@ -18,13 +18,12 @@
                     <div v-if="cards && cards.data.length > 0" class="grid grid-cols-4 gap-5 col-span-5">
                         <div v-for="card in cards.data" class="mb-2">
                             <div class="mb-2">
-                                <!-- <img class="cursor-pointer" :src="card.image_uris.normal" @click="addCard(card)" /> -->
                                 <card-display :card="card" :card-count="(deckCardCount[card.arena_id] && deckCardCount[card.arena_id].count) ? deckCardCount[card.arena_id].count : 0" @addCard="addCard" />
                             </div>
                         </div>
                     </div>
                     <div class="bg-white shadow-xl sm:rounded p-2 sticky top-2 self-start col-span-2">
-                        <h1 class="text-xl">Deck ({{deckTotalCards}}/60)</h1>
+                        <h1 class="text-xl">Deck ({{deckTotalCards}}/60) --- <span @click="saveDeck">[SAVE]</span></h1>
                         <div class="deck-list-container overflow-y-auto">
                             <div v-for="card in deck" class="card-list-item grid grid-cols-5 gap-2">
                                 <div class="col-span-3">
@@ -52,6 +51,7 @@
 </template>
 
 <script>
+    import { Inertia } from '@inertiajs/inertia'
     import AppLayout from '@/Layouts/AppLayout.vue'
     import Welcome from '@/Jetstream/Welcome.vue'
     import CardDisplay from '../Components/CardDisplay.vue'
@@ -62,6 +62,14 @@
             AppLayout,
             Welcome,
             CardDisplay
+        },
+
+        props: {
+            deckId: {
+                type: Number,
+                required: false,
+                default: null
+            }
         },
 
         data() {
@@ -125,6 +133,16 @@
 
             isBasicLand(card) {
                 return card.type_line.search('Basic Land') !== -1;
+            },
+
+            saveDeck() {
+                const form = {
+                    deckId: this.deckId,
+                    deck: this.deck,
+                    deckCardCount: this.deckCardCount
+                }
+
+                Inertia.post('/my-decks/save', form);
             }
             
         }

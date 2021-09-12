@@ -4,6 +4,8 @@ use Illuminate\Foundation\Application;
 use Illuminate\Support\Facades\Route;
 use Inertia\Inertia;
 
+use App\Http\Controllers\DeckController;
+
 /*
 |--------------------------------------------------------------------------
 | Web Routes
@@ -31,3 +33,12 @@ Route::middleware(['auth:sanctum', 'verified'])->get('/dashboard', function () {
 Route::middleware(['auth:sanctum', 'verified'])->get('/cards', function () {
     return Inertia::render('Cards');
 })->name('cards');
+
+Route::middleware(['auth:sanctum', 'verified'])->group(function () {
+    Route::get('/my-decks', [DeckController::class, 'index'])->name('my-decks');
+    Route::post('/my-decks/save', [DeckController::class, 'save']);
+    Route::get('/new-deck', [DeckController::class, 'view'])->name('new-deck');
+    Route::get('/view-deck/{deckId}', [DeckController::class, 'view'])->name('view-deck');
+}); 
+
+

@@ -22,8 +22,11 @@
                                 <jet-nav-link :href="route('dashboard')" :active="route().current('dashboard')">
                                     Dashboard
                                 </jet-nav-link>
+                                <jet-nav-link :href="route('my-decks')" :active="route().current('my-decks')">
+                                    My Decks
+                                </jet-nav-link>
                                 <jet-nav-link :href="route('cards')" :active="route().current('cards')">
-                                    Cards
+                                    View Cards
                                 </jet-nav-link>
                             </div>
                         </div>
